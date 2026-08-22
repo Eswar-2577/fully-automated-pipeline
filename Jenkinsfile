@@ -34,8 +34,12 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    env.APP_VERSION = (params.DEPLOY_VERSION == 'AUTO') ? pomVersion : params.DEPLOY_VERSION
+                    env.APP_VERSION = (params.DEPLOY_VERSION == 'AUTO')
+                        ? pomVersion
+                        : params.DEPLOY_VERSION
+
                     currentBuild.description = "Version ${APP_VERSION}"
+
                     echo "Deployment version: ${APP_VERSION}"
                 }
             }
@@ -62,8 +66,15 @@ pipeline {
         stage('Prepare Artifact') {
             steps {
                 sh '''
-                    mkdir -p ${ANSIBLE_DIR}/deploy
-                    cp target/${APP_NAME}-${APP_VERSION}.jar ${ANSIBLE_DIR}/deploy/java-app.jar
+                    set -e
+
+                    mkdir -p "${ANSIBLE_DIR}/deploy"
+
+                    cp "target/${APP_NAME}-${APP_VERSION}.jar" \
+                       "${ANSIBLE_DIR}/deploy/java-app.jar"
+
+                    echo "Artifact prepared:"
+                    ls -lh "${ANSIBLE_DIR}/deploy/java-app.jar"
                 '''
             }
         }
@@ -71,10 +82,11 @@ pipeline {
         stage('Deploy with Ansible') {
             steps {
                 echo "Deploying ${APP_NAME} version ${APP_VERSION} to app server on port ${APP_PORT}"
+
                 sh '''
                     ansible-playbook \
-                        -i ${ANSIBLE_DIR}/inventory \
-                        ${ANSIBLE_DIR}/deploy.yml \
+                        -i "${ANSIBLE_DIR}/inventory" \
+                        "${ANSIBLE_DIR}/deploy.yml" \
                         -e "app_version=${APP_VERSION}"
                 '''
             }
@@ -83,8 +95,61 @@ pipeline {
         stage('Health Check') {
             steps {
                 sh '''
-                    ansible -i ${ANSIBLE_DIR}/inventory app -m shell -a "systemctl is-active --quiet java-app"
-                    ansible -i ${ANSIBLE_DIR}/inventory app -m shell -a "curl -f --max-time 10 http://localhost:${APP_PORT}"
+                    set -e
+
+                    echo "======================================"
+                    echo "Checking systemd service..."
+                    echo "======================================"
+
+                    ansible \
+                        -i "${ANSIBLE_DIR}/inventory" \
+                        app \
+                        -m shell \
+                        -a "systemctl is-active --quiet ${APP_NAME}"
+
+                    echo ""
+                    echo "======================================"
+                    echo "Waiting for application on port ${APP_PORT}..."
+                    echo "======================================"
+
+                    ansible \
+                        -i "${ANSIBLE_DIR}/inventory" \
+                        app \
+                        -m shell \
+                        -a '
+                            for i in $(seq 1 30); do
+                                if curl -fsS --max-time 5 http://localhost:${APP_PORT} > /dev/null; then
+                                    echo "Application is healthy."
+                                    exit 0
+                                fi
+
+                                echo "Application not ready yet. Attempt ${i}/30..."
+                                sleep 2
+                            done
+
+                            echo "Application failed health check after 60 seconds."
+                            echo ""
+                            echo "Last application status:"
+                            systemctl status ${APP_NAME} --no-pager || true
+                            echo ""
+                            echo "Recent application logs:"
+                            journalctl -u ${APP_NAME} -n 50 --no-pager || true
+
+                            exit 1
+                        '
+
+                    echo ""
+                    echo "======================================"
+                    echo "Final HTTP health check..."
+                    echo "======================================"
+
+                    ansible \
+                        -i "${ANSIBLE_DIR}/inventory" \
+                        app \
+                        -m shell \
+                        -a "curl -fsS --max-time 10 http://localhost:${APP_PORT} > /dev/null"
+
+                    echo "HTTP health check passed."
                 '''
             }
         }
@@ -98,6 +163,7 @@ pipeline {
                 Application : ${APP_NAME}
                 Version     : ${APP_VERSION}
                 Port        : ${APP_PORT}
+                Health URL  : http://localhost:${APP_PORT}
                 ======================================
                 """
             }
@@ -108,11 +174,13 @@ pipeline {
         success {
             echo "Deployment successful."
         }
+
         failure {
             echo "Pipeline failed."
         }
+
         always {
-            sh 'rm -rf ${ANSIBLE_DIR}/deploy || true'
+            sh 'rm -rf "${ANSIBLE_DIR}/deploy" || true'
             cleanWs()
         }
     }
