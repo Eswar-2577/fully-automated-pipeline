@@ -14,6 +14,8 @@ pipeline {
         APP_NAME    = 'java-app'
         APP_PORT    = '9090'
         ANSIBLE_DIR = '/var/lib/jenkins/ansible/java-app'
+        JAVA_HOME   = '/usr/lib/jvm/java-21-amazon-corretto.x86_64'
+        PATH        = "/usr/lib/jvm/java-21-amazon-corretto.x86_64/bin:${env.PATH}"
     }
 
     stages {
