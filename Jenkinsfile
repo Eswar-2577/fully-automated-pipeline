@@ -116,27 +116,7 @@ pipeline {
                         -i "${ANSIBLE_DIR}/inventory" \
                         app \
                         -m shell \
-                        -a '
-                            for i in $(seq 1 30); do
-                                if curl -fsS --max-time 5 http://localhost:${APP_PORT} > /dev/null; then
-                                    echo "Application is healthy."
-                                    exit 0
-                                fi
-
-                                echo "Application not ready yet. Attempt ${i}/30..."
-                                sleep 2
-                            done
-
-                            echo "Application failed health check after 60 seconds."
-                            echo ""
-                            echo "Last application status:"
-                            systemctl status ${APP_NAME} --no-pager || true
-                            echo ""
-                            echo "Recent application logs:"
-                            journalctl -u ${APP_NAME} -n 50 --no-pager || true
-
-                            exit 1
-                        '
+                        -a "for i in \\$(seq 1 30); do if curl -fsS --max-time 5 http://localhost:${APP_PORT} > /dev/null; then echo 'Application is healthy.'; exit 0; fi; echo \\\"Application not ready yet. Attempt \\$i/30...\\\"; sleep 2; done; echo 'Application failed health check after 60 seconds.'; systemctl status ${APP_NAME} --no-pager || true; journalctl -u ${APP_NAME} -n 50 --no-pager || true; exit 1"
 
                     echo ""
                     echo "======================================"
