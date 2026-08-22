@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Eswar Morla | AWS DevOps Engineer</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <nav class="navbar">
+    <button class="nav-btn active" data-target="about">About</button>
+    <button class="nav-btn" data-target="skills">Skills</button>
+    <button class="nav-btn" data-target="projects">Projects</button>
+    <button class="nav-btn" data-target="education">Education</button>
+    <button class="nav-btn" data-target="certifications">Certifications</button>
+  </nav>
+
+  <main>
+
+    <section id="about">
+      <div class="hero">
+        <div class="avatar">EM</div>
+        <h1>Eswar Morla</h1>
+        <div class="title-badge">AWS DevOps Engineer</div>
+        <p class="tagline">Aspiring DevOps Engineer building reliable, automated infrastructure</p>
+
+        <div class="contact-row">
+          <a class="chip" href="tel:+917981692577">&#128222; +91-7981692577</a>
+          <a class="chip" href="mailto:eswarm2577@gmail.com">&#9993; eswarm2577@gmail.com</a>
+          <span class="chip">&#128205; Hyderabad, Telangana, India</span>
+        </div>
+
+        <div class="stats" id="stats">
+          <div class="loader">loading stats…</div>
+        </div>
+      </div>
+
+      <div class="card reveal in" style="margin-top:34px;">
+        <div class="section-title"><span class="dot"></span> Professional Summary</div>
+        <p class="summary-text">
+          Computer Science (AI &amp; ML) graduate proficient in Linux administration, AWS cloud
+          infrastructure, CI/CD automation, Docker, Kubernetes, Terraform, and Ansible. Specialized
+          DevOps training with hands-on expertise in container orchestration, monitoring, and cloud
+          provisioning. Seeking an entry-level AWS DevOps Engineer role to design and deploy reliable,
+          scalable, and automated infrastructure solutions.
+        </p>
+      </div>
+    </section>
+
+    <section id="skills" class="hidden">
+      <div class="section-title"><span class="dot"></span> Technical Skills</div>
+      <p class="section-sub">Pulled live from GET /api/profile</p>
+      <div class="skills-grid" id="skills-grid">
+        <div class="loader">loading skills…</div>
+      </div>
+    </section>
+
+    <section id="projects" class="hidden">
+      <div class="section-title"><span class="dot"></span> Projects</div>
+      <p class="section-sub">Tap a card to expand the highlights</p>
+      <div id="projects-list">
+        <div class="loader">loading projects…</div>
+      </div>
+    </section>
+
+    <section id="education" class="hidden">
+      <div class="section-title"><span class="dot"></span> Education</div>
+      <p class="section-sub">&nbsp;</p>
+      <div class="timeline" id="education-timeline">
+        <div class="loader">loading education…</div>
+      </div>
+    </section>
+
+    <section id="certifications" class="hidden">
+      <div class="section-title"><span class="dot"></span> Certifications &amp; Training</div>
+      <p class="section-sub">&nbsp;</p>
+      <div id="certifications-list">
+        <div class="loader">loading certifications…</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    Built with Spring Boot · served entirely by spring-boot-starter-web (no new dependencies) · &copy; Eswar Morla
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
