@@ -70,9 +70,9 @@ pipeline {
                     mail(
                         to: "${APPROVER_MAIL}",
                         subject: "Approval needed: Deploy ${APP_NAME} v${APP_VERSION}",
-                        body: "Build #${BUILD_NUMBER} of ${APP_NAME} v${APP_VERSION} is ready to deploy.\n\n" +
-                              "Click here to approve or abort (expires in 10 minutes):\n${BUILD_URL}input\n\n" +
-                              "Console output:\n${BUILD_URL}console"
+                        body: "Build #${env.BUILD_NUMBER} of ${APP_NAME} v${APP_VERSION} is ready to deploy.\n\n" +
+                              "Click here to approve or abort (expires in 10 minutes):\n${env.BUILD_URL}input\n\n" +
+                              "Console output:\n${env.BUILD_URL}console"
                     )
 
                     timeout(time: 10, unit: 'MINUTES') {
