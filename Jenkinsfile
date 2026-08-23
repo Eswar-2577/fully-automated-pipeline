@@ -11,11 +11,12 @@ pipeline {
     }
 
     environment {
-        APP_NAME    = 'java-app'
-        APP_PORT    = '9090'
-        ANSIBLE_DIR = '/var/lib/jenkins/ansible/java-app'
-        JAVA_HOME   = '/usr/lib/jvm/java-21-amazon-corretto.x86_64'
-        PATH        = "/usr/lib/jvm/java-21-amazon-corretto.x86_64/bin:${env.PATH}"
+        APP_NAME      = 'java-app'
+        APP_PORT      = '9090'
+        ANSIBLE_DIR   = '/var/lib/jenkins/ansible/java-app'
+        JAVA_HOME     = '/usr/lib/jvm/java-21-amazon-corretto.x86_64'
+        PATH          = "/usr/lib/jvm/java-21-amazon-corretto.x86_64/bin:${env.PATH}"
+        APPROVER_MAIL = 'you@example.com'   // <-- change this to where approval emails should go
     }
 
     stages {
@@ -60,6 +61,24 @@ pipeline {
         stage('Package') {
             steps {
                 sh 'mvn package -DskipTests'
+            }
+        }
+
+        stage('Deployment Approval') {
+            steps {
+                script {
+                    mail(
+                        to: "${APPROVER_MAIL}",
+                        subject: "Approval needed: Deploy ${APP_NAME} v${APP_VERSION}",
+                        body: "Build #${BUILD_NUMBER} of ${APP_NAME} v${APP_VERSION} is ready to deploy.\n\n" +
+                              "Click here to approve or abort (expires in 10 minutes):\n${BUILD_URL}input\n\n" +
+                              "Console output:\n${BUILD_URL}console"
+                    )
+
+                    timeout(time: 10, unit: 'MINUTES') {
+                        input message: "Deploy ${APP_NAME} v${APP_VERSION} to the app server?", ok: 'Deploy'
+                    }
+                }
             }
         }
 
@@ -156,7 +175,7 @@ pipeline {
         }
 
         failure {
-            echo "Pipeline failed."
+            echo "Pipeline failed or was not approved in time."
         }
 
         always {
