@@ -16,7 +16,7 @@ pipeline {
         ANSIBLE_DIR   = '/var/lib/jenkins/ansible/java-app'
         JAVA_HOME     = '/usr/lib/jvm/java-21-amazon-corretto.x86_64'
         PATH          = "/usr/lib/jvm/java-21-amazon-corretto.x86_64/bin:${env.PATH}"
-        APPROVER_MAIL = 'eswarm2577@gmail.com'   // <-- change this to where approval emails should go
+        APPROVER_MAIL = 'eswarm2577@gmail.com'
     }
 
     stages {
